@@ -3,6 +3,7 @@ import smtplib
 import os
 from email.mime.text import MIMEText
 from datetime import datetime
+import pytz
 
 def get_weather_and_pollen(latitude, longitude):
     """Fetch weather + UV + pollen from Open-Meteo (all free)"""
@@ -73,6 +74,11 @@ def format_weather_message(weather_data, pollen_data, user_name="there"):
     else:
         greeting = f"Good morning, {user_name}! Looks warm today!"
     
+    # Get current time in CST
+    cst = pytz.timezone('America/Chicago')
+    now_cst = datetime.now(cst)
+    time_str = now_cst.strftime('%A, %B %d, %Y at %I:%M %p %Z')
+    
     # Build pollen section
     pollen_section = ""
     if tree_pollen is not None or grass_pollen is not None or weed_pollen is not None:
@@ -91,7 +97,7 @@ def format_weather_message(weather_data, pollen_data, user_name="there"):
     message = f"""{greeting}
 
 ═══════════════════════════════════
-📍 MINNEAPOLIS WEATHER FORECAST
+📍 EDEN PRAIRIE, MINNESOTA WEATHER
 ═══════════════════════════════════
 
 🌡️  CURRENT CONDITIONS
@@ -105,7 +111,7 @@ def format_weather_message(weather_data, pollen_data, user_name="there"):
    {pollen_section}
 
 ═══════════════════════════════════
-Updated: {datetime.now().strftime('%A, %B %d, %Y at %I:%M %p')}
+Updated: {time_str}
 
 Have a great day! 🌤️"""
     return message
@@ -157,8 +163,9 @@ if __name__ == "__main__":
     print()
     
     # Run the bot
-    print("Fetching weather and pollen data...")
-    weather, pollen = get_weather_and_pollen(44.9778, -93.2650)
+    # Eden Prairie, Minnesota coordinates: 44.8194, -93.4891
+    print("Fetching weather and pollen data for Eden Prairie, MN...")
+    weather, pollen = get_weather_and_pollen(44.8194, -93.4891)
     
     print("Formatting message...")
     message = format_weather_message(weather, pollen, user_name=user_name)
