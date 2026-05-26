@@ -4,9 +4,6 @@ import os
 from email.mime.text import MIMEText
 from datetime import datetime
 
-sender_email = os.getenv('GMAIL_ADDRESS')
-sender_password = os.getenv('GMAIL_PASSWORD')
-
 # 1. FETCH WEATHER (Open-Meteo, no API key needed)
 def get_weather(latitude, longitude):
     url = f"https://api.open-meteo.com/v1/forecast?latitude={latitude}&longitude={longitude}&current=temperature_2m,weather_code,wind_speed_10m"
@@ -33,8 +30,8 @@ Have a great day!
 
 # 3. SEND EMAIL
 def send_email(recipient_email, subject, body):
-    sender_email = "your_email@gmail.com"
-    sender_password = "your_app_password"  # See Step 3 below
+sender_email = os.getenv('GMAIL_ADDRESS')
+sender_password = os.getenv('GMAIL_PASSWORD') # See Step 3 below
     
     msg = MIMEText(body)
     msg['Subject'] = subject

@@ -1,0 +1,28 @@
+name: Daily Weather Bot
+
+on:
+  schedule:
+    # Runs every day at 6:00 AM CST (12:00 PM UTC)
+    - cron: '0 12 * * *'
+
+jobs:
+  send_weather:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      
+      - name: Install dependencies
+        run: pip install requests
+      
+      - name: Run weather bot
+        env:
+          GMAIL_ADDRESS: ${{ secrets.GMAIL_ADDRESS }}
+          GMAIL_PASSWORD: ${{ secrets.GMAIL_PASSWORD }}
+          RECIPIENT_EMAIL: ${{ secrets.RECIPIENT_EMAIL }}
+        run: python weather_bot.py
