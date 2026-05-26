@@ -48,6 +48,9 @@ def create_prompt_for_claude(weather_data, pollen_data, user_name="there"):
     current_weather = weather_data['current']
     daily_weather = weather_data['daily']
 
+def celsius_to_fahrenheit(celsius):
+    """Convert Celsius to Fahrenheit"""
+    return round((celsius * 9/5) + 32, 1)
      # Convert temperature from Celsius to Fahrenheit
     temp_celsius = current_weather['temperature_2m']
     temp_fahrenheit = celsius_to_fahrenheit(temp_celsius)
