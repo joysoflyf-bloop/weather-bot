@@ -2,10 +2,8 @@ name: Daily Weather Bot
 
 on:
   schedule:
-    # Runs every day at 6:00 AM CST (12:00 PM UTC)
     - cron: '0 12 * * *'
-    workflow_dispatch:
-
+  workflow_dispatch:         
 jobs:
   send_weather:
     runs-on: ubuntu-latest
