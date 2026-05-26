@@ -116,22 +116,32 @@ Updated: {time_str}
 Have a great day! 🌤️"""
     return message
 
-def send_email(sender_email, sender_password, recipient_email, subject, body):
-    """Send email via Gmail SMTP"""
+def send_email(sender_email, sender_password, recipient_emails, subject, body):
+    """Send email via Gmail SMTP to one or more recipients"""
     try:
+        # Convert single email to list if needed
+        if isinstance(recipient_emails, str):
+            recipient_emails = [recipient_emails]
+        
+        # Remove empty emails and strip whitespace
+        recipient_emails = [e.strip() for e in recipient_emails if e.strip()]
+        
+        if not recipient_emails:
+            raise ValueError("No valid recipient emails provided")
+        
         msg = MIMEText(body)
         msg['Subject'] = subject
         msg['From'] = sender_email
-        msg['To'] = recipient_email
+        msg['To'] = ', '.join(recipient_emails)
         
         print(f"Connecting to Gmail...")
         with smtplib.SMTP_SSL('smtp.gmail.com', 465) as server:
             print(f"Logging in as {sender_email}...")
             server.login(sender_email, sender_password)
-            print(f"Sending to {recipient_email}...")
-            server.sendmail(sender_email, recipient_email, msg.as_string())
+            print(f"Sending to {len(recipient_emails)} recipient(s)...")
+            server.sendmail(sender_email, recipient_emails, msg.as_string())
         
-        print(f"✓ Email sent successfully!")
+        print(f"✓ Email sent successfully to: {', '.join(recipient_emails)}")
         return True
     except smtplib.SMTPAuthenticationError as e:
         print(f"✗ Gmail login failed. Check your app password.")
@@ -145,20 +155,24 @@ if __name__ == "__main__":
     # Get secrets from environment
     sender_email = os.getenv('GMAIL_ADDRESS', '').strip()
     sender_password = os.getenv('GMAIL_PASSWORD', '').strip()
-    recipient_email = os.getenv('RECIPIENT_EMAIL', '').strip()
-    user_name = os.getenv('USER_NAME', 'there').strip()  # Optional: personalization
+    recipient_emails_str = os.getenv('RECIPIENT_EMAILS', '').strip()
+    user_name = os.getenv('USER_NAME', 'there').strip()
     
     # Validate
     if not sender_email:
         raise ValueError("ERROR: GMAIL_ADDRESS is not set in GitHub secrets")
     if not sender_password:
         raise ValueError("ERROR: GMAIL_PASSWORD is not set in GitHub secrets")
-    if not recipient_email:
-        raise ValueError("ERROR: RECIPIENT_EMAIL is not set in GitHub secrets")
+    if not recipient_emails_str:
+        raise ValueError("ERROR: RECIPIENT_EMAILS is not set in GitHub secrets")
+    
+    # Parse multiple emails (comma or semicolon separated)
+    recipient_emails = [e.strip() for e in recipient_emails_str.replace(';', ',').split(',')]
+    recipient_emails = [e for e in recipient_emails if e]  # Remove empty strings
     
     print(f"Configuration loaded:")
     print(f"  Sender: {sender_email}")
-    print(f"  Recipient: {recipient_email}")
+    print(f"  Recipients ({len(recipient_emails)}): {', '.join(recipient_emails)}")
     print(f"  User name: {user_name}")
     print()
     
@@ -171,6 +185,6 @@ if __name__ == "__main__":
     message = format_weather_message(weather, pollen, user_name=user_name)
     
     print("Sending email...")
-    send_email(sender_email, sender_password, recipient_email, "☀️ Your Daily Weather Report", message)
+    send_email(sender_email, sender_password, recipient_emails, "☀️ Your Daily Weather Report", message)
     
     print("\n✓ Weather bot completed successfully!")
