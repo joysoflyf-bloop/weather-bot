@@ -1,4 +1,4 @@
-name: Daily Weather Bot
+name: Daily Weather Bot with AI
 
 on:
   schedule:
@@ -20,7 +20,7 @@ jobs:
           python-version: '3.11'
       
       - name: Install dependencies
-        run: pip install requests pytz
+        run: pip install requests pytz anthropic
       
       - name: Run weather bot
         env:
@@ -28,4 +28,5 @@ jobs:
           GMAIL_PASSWORD: ${{ secrets.GMAIL_PASSWORD }}
           RECIPIENT_EMAILS: ${{ secrets.RECIPIENT_EMAILS }}
           USER_NAME: ${{ secrets.USER_NAME }}
+          CLAUDE_API_KEY: ${{ secrets.CLAUDE_API_KEY }}
         run: python weather_bot.py
