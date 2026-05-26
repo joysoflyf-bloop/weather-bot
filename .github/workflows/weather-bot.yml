@@ -20,6 +20,12 @@ jobs:
       
       - name: Install dependencies
         run: pip install requests
+        
+      - name: Verify secrets
+        run: |
+          echo "GMAIL_ADDRESS set: ${#GMAIL_ADDRESS}"
+          echo "GMAIL_PASSWORD set: ${#GMAIL_PASSWORD}"
+          echo "RECIPIENT_EMAIL: $RECIPIENT_EMAIL"
       
       - name: Run weather bot
         env:
