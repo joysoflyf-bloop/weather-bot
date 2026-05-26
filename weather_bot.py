@@ -12,7 +12,7 @@ def get_weather_and_pollen(latitude, longitude):
     weather_data = weather_response.json()
     
     # Pollen data (US only, from Open-Meteo)
-    pollen_url = f"https://air-quality-api.open-meteo.com/v1/air-quality?latitude={latitude}&longitude={longitude}&current=pollen_count,tree_pollen,grass_pollen,weed_pollen"
+    pollen_url = f"https://air-quality-api.open-meteo.com/v1/air-quality?latitude={latitude}&longitude={longitude}&current=tree_pollen,grass_pollen,weed_pollen"
     pollen_response = requests.get(pollen_url)
     pollen_data = pollen_response.json()
     
@@ -46,17 +46,22 @@ def format_weather_message(weather_data, pollen_data, user_name="there"):
     """Format weather data with personalization"""
     current_weather = weather_data['current']
     daily_weather = weather_data['daily']
-    current_pollen = pollen_data['current']
     
     temp = current_weather['temperature_2m']
     wind = current_weather['wind_speed_10m']
     current_uv = current_weather['uv_index']
     max_uv = daily_weather['uv_index_max'][0]
     
-    # Pollen data
-    tree_pollen = current_pollen.get('tree_pollen')
-    grass_pollen = current_pollen.get('grass_pollen')
-    weed_pollen = current_pollen.get('weed_pollen')
+    # Pollen data - safely extract from API response
+    tree_pollen = None
+    grass_pollen = None
+    weed_pollen = None
+    
+    if 'current' in pollen_data:
+        current_pollen = pollen_data['current']
+        tree_pollen = current_pollen.get('tree_pollen')
+        grass_pollen = current_pollen.get('grass_pollen')
+        weed_pollen = current_pollen.get('weed_pollen')
     
     # Temperature-based greeting
     if temp < 20:
@@ -67,6 +72,20 @@ def format_weather_message(weather_data, pollen_data, user_name="there"):
         greeting = f"Good morning, {user_name}! Nice day ahead!"
     else:
         greeting = f"Good morning, {user_name}! Looks warm today!"
+    
+    # Build pollen section
+    pollen_section = ""
+    if tree_pollen is not None or grass_pollen is not None or weed_pollen is not None:
+        pollen_section = f"""
+🌾 POLLEN LEVELS
+   Tree Pollen: {get_pollen_level(tree_pollen)}
+   Grass Pollen: {get_pollen_level(grass_pollen)}
+   Weed Pollen: {get_pollen_level(weed_pollen)}
+   💡 Tip: Keep windows closed if pollen is High"""
+    else:
+        pollen_section = """
+🌾 POLLEN LEVELS
+   (Data unavailable - check local pollen counts)"""
     
     # Build message
     message = f"""{greeting}
@@ -83,13 +102,8 @@ def format_weather_message(weather_data, pollen_data, user_name="there"):
    Current: {current_uv} ({get_uv_index_level(current_uv)})
    Today's Max: {max_uv}
    💡 Tip: Apply sunscreen if UV is High or higher
-   
-🌾 POLLEN LEVELS
-   Tree Pollen: {get_pollen_level(tree_pollen)}
-   Grass Pollen: {get_pollen_level(grass_pollen)}
-   Weed Pollen: {get_pollen_level(weed_pollen)}
-   💡 Tip: Keep windows closed if pollen is High
-   
+   {pollen_section}
+
 ═══════════════════════════════════
 Updated: {datetime.now().strftime('%A, %B %d, %Y at %I:%M %p')}
 
@@ -153,5 +167,3 @@ if __name__ == "__main__":
     send_email(sender_email, sender_password, recipient_email, "☀️ Your Daily Weather Report", message)
     
     print("\n✓ Weather bot completed successfully!")
-    print("\nPreview of message sent:")
-    print(message)
