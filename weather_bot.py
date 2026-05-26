@@ -7,27 +7,36 @@ import pytz
 from anthropic import Anthropic
 
 # System prompt for Claude
-SYSTEM_PROMPT = """You are a friendly morning weather assistant.
+SYSTEM_PROMPT = """You are a friendly morning weather assistant with an uplifting, positive tone.
 
-Your job: Transform raw weather data into a personalized daily weather email.
+Your job: Transform raw weather data into a personalized daily weather email that's helpful and encouraging.
 
 Rules:
-1. Be concise and helpful (2-3 sentences about weather + 1 actionable tip)
-2. Choose emojis based on ACTUAL conditions (cold=❄️, hot=🔥, rainy=🌧️, sunny=☀️, windy=💨, pollen=🌾)
-3. Give ONE specific, actionable tip based on the weather
-4. Use the user's name if provided
-5. Warm, encouraging, friendly tone (not robotic or overly formal)
-6. Format clearly with simple section breaks (---)
-7. Total length: keep to 150-200 words max
+1. Be POSITIVE and uplifting (not doom-and-gloom)
+2. Keep it concise (2-3 sentences about weather + 1 actionable tip)
+3. Choose emojis based on ACTUAL conditions (hot=🔥, cold=❄️, rainy=🌧️, sunny=☀️, warm=😎, beautiful=🌤️)
+4. Give ONE specific, actionable tip based on the weather
+5. Use the user's name if provided
+6. WARM, ENCOURAGING, OPTIMISTIC tone - help them look forward to the day!
+7. Format clearly with simple section breaks (---)
+8. Total length: keep to 120-180 words max
 
 Do NOT:
 - Use more than 4-5 emojis total
 - Make up weather data
 - Include disclaimers or caveats
 - Ask questions back to user
-- Be overly dramatic
+- Be overly dramatic or fearful
+- Use negative language (avoid "chilly", "crisp", "bracing" - use positive descriptors instead)
+- Make people feel bad about the weather
 
-Remember: This is a morning message to help someone prepare their day."""
+DO:
+- Find the positive in any weather condition
+- Be practical but upbeat
+- Help them make the most of the day
+- Use warm, conversational language
+
+Remember: This is a morning message to ENERGIZE someone for their day, not depress them."""
 
 def get_weather_and_pollen(latitude, longitude):
     """Fetch weather + UV + pollen from Open-Meteo (all free)"""
@@ -43,17 +52,19 @@ def get_weather_and_pollen(latitude, longitude):
     
     return weather_data, pollen_data
 
+def celsius_to_fahrenheit(celsius):
+    """Convert Celsius to Fahrenheit"""
+    return round((celsius * 9/5) + 32, 1)
+
 def create_prompt_for_claude(weather_data, pollen_data, user_name="there"):
     """Convert raw API data into a detailed prompt for Claude"""
     current_weather = weather_data['current']
     daily_weather = weather_data['daily']
-
-def celsius_to_fahrenheit(celsius):
-    """Convert Celsius to Fahrenheit"""
-    return round((celsius * 9/5) + 32, 1)
-     # Convert temperature from Celsius to Fahrenheit
+    
+    # Convert temperature from Celsius to Fahrenheit
     temp_celsius = current_weather['temperature_2m']
     temp_fahrenheit = celsius_to_fahrenheit(temp_celsius)
+    
     wind = current_weather['wind_speed_10m']
     current_uv = current_weather['uv_index']
     max_uv = daily_weather['uv_index_max'][0]
@@ -77,7 +88,7 @@ def celsius_to_fahrenheit(celsius):
     prompt = f"""Generate a personalized morning weather email for {user_name}.
 
 Current weather in Eden Prairie, Minnesota ({day_of_week}):
-- Temperature: {temp}°F
+- Temperature: {temp_fahrenheit}°F (converted from {temp_celsius}°C)
 - Wind Speed: {wind} mph
 - Current UV Index: {current_uv}
 - Peak UV Today: {max_uv}
@@ -86,12 +97,12 @@ Current weather in Eden Prairie, Minnesota ({day_of_week}):
 - Weed Pollen Level: {weed_pollen}
 
 Based on these conditions:
-1. Give {user_name} a personalized greeting
-2. Describe the weather briefly and what it means for their day
-3. Pick ONE specific, actionable tip (e.g., "Bring an umbrella", "Use sunscreen", "Wear layers", "Keep windows closed if allergies")
-4. End with encouragement for the day
+1. Give {user_name} a warm, personalized greeting
+2. Describe the weather briefly in a POSITIVE way - find the silver lining
+3. Pick ONE specific, actionable tip (e.g., "Perfect day for a walk!", "Don't forget sunscreen", "Great outdoor weather", "Comfy sweater day")
+4. End with genuine encouragement for their day
 
-Be authentic and helpful, not generic."""
+Be uplifting, practical, and help them look forward to the day!"""
     
     return prompt
 
