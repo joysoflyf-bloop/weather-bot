@@ -1,7 +1,11 @@
 import requests
 import smtplib
+import os
 from email.mime.text import MIMEText
 from datetime import datetime
+
+sender_email = os.getenv('GMAIL_ADDRESS')
+sender_password = os.getenv('GMAIL_PASSWORD')
 
 # 1. FETCH WEATHER (Open-Meteo, no API key needed)
 def get_weather(latitude, longitude):
@@ -51,4 +55,4 @@ if __name__ == "__main__":
     
     weather = get_weather(latitude, longitude)
     message = format_weather_message(weather)
-    send_email("you@gmail.com", "Your daily weather", message)
+    send_email("nanisandy2@gmail.com", "Your daily weather", message)
