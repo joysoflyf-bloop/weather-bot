@@ -116,7 +116,7 @@ def generate_weather_message(weather_data, pollen_data, user_name="there", api_k
         
         print("Calling Claude API to generate message...")
         message = client.messages.create(
-            model="claude-opus-4-1-20250805",
+            model="claude-3-5-haiku-20241022",  # Was: claude-opus-4-1-20250805
             max_tokens=500,
             system=SYSTEM_PROMPT,
             messages=[
