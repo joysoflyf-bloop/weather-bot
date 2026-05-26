@@ -90,10 +90,11 @@ Be authentic and helpful, not generic."""
     
     return prompt
 
-def generate_weather_message(weather_data, pollen_data, user_name="there"):
+def generate_weather_message(weather_data, pollen_data, user_name="there", api_key=None):
     """Use Claude to generate the weather message"""
     try:
-        client = Anthropic()
+        # Pass api_key explicitly to Anthropic client
+        client = Anthropic(api_key=api_key)
         
         prompt = create_prompt_for_claude(weather_data, pollen_data, user_name)
         
@@ -184,7 +185,7 @@ if __name__ == "__main__":
     weather, pollen = get_weather_and_pollen(44.8194, -93.4891)
     
     print("Step 2: Generating personalized message with Claude AI...")
-    message = generate_weather_message(weather, pollen, user_name=user_name)
+    message = generate_weather_message(weather, pollen, user_name=user_name, api_key=claude_api_key)
     
     print("Step 3: Sending email...")
     send_email(sender_email, sender_password, recipient_emails, "☀️ Your Daily Weather Report", message)
