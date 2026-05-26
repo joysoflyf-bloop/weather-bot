@@ -47,8 +47,10 @@ def create_prompt_for_claude(weather_data, pollen_data, user_name="there"):
     """Convert raw API data into a detailed prompt for Claude"""
     current_weather = weather_data['current']
     daily_weather = weather_data['daily']
-    
-    temp = current_weather['temperature_2m']
+
+     # Convert temperature from Celsius to Fahrenheit
+    temp_celsius = current_weather['temperature_2m']
+    temp_fahrenheit = celsius_to_fahrenheit(temp_celsius)
     wind = current_weather['wind_speed_10m']
     current_uv = current_weather['uv_index']
     max_uv = daily_weather['uv_index_max'][0]
