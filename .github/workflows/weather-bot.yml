@@ -2,7 +2,8 @@ name: Daily Weather Bot
 
 on:
   schedule:
-    # Runs every day at 6:00 AM CST (12:00 PM UTC)
+    # Runs every day at 6:00 AM CST (which is 12:00 PM UTC)
+    # Minute (0) Hour (12 UTC = 6 AM CST) * * *
     - cron: '0 12 * * *'
   workflow_dispatch:
 
@@ -19,17 +20,12 @@ jobs:
           python-version: '3.11'
       
       - name: Install dependencies
-        run: pip install requests
-        
-      - name: Verify secrets
-        run: |
-          echo "GMAIL_ADDRESS set: ${#GMAIL_ADDRESS}"
-          echo "GMAIL_PASSWORD set: ${#GMAIL_PASSWORD}"
-          echo "RECIPIENT_EMAIL: $RECIPIENT_EMAIL"
+        run: pip install requests pytz
       
       - name: Run weather bot
         env:
           GMAIL_ADDRESS: ${{ secrets.GMAIL_ADDRESS }}
           GMAIL_PASSWORD: ${{ secrets.GMAIL_PASSWORD }}
           RECIPIENT_EMAIL: ${{ secrets.RECIPIENT_EMAIL }}
+          USER_NAME: ${{ secrets.USER_NAME }}
         run: python weather_bot.py
