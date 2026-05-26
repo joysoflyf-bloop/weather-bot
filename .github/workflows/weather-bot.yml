@@ -1,9 +1,11 @@
-name: Daily Weather Bot
+name: Daily Weather Bot with AI
 
 on:
   schedule:
-    # Runs every day at 6:00 AM CST (12:00 PM UTC)
+    # Runs every day at 6:00 AM CST (which is 12:00 PM UTC)
+    # Minute (0) Hour (12 UTC = 6 AM CST) * * *
     - cron: '0 12 * * *'
+  workflow_dispatch:
 
 jobs:
   send_weather:
@@ -18,11 +20,13 @@ jobs:
           python-version: '3.11'
       
       - name: Install dependencies
-        run: pip install requests
+        run: pip install requests pytz anthropic
       
       - name: Run weather bot
         env:
           GMAIL_ADDRESS: ${{ secrets.GMAIL_ADDRESS }}
           GMAIL_PASSWORD: ${{ secrets.GMAIL_PASSWORD }}
-          RECIPIENT_EMAIL: ${{ secrets.RECIPIENT_EMAIL }}
+          RECIPIENT_EMAILS: ${{ secrets.RECIPIENT_EMAILS }}
+          USER_NAME: ${{ secrets.USER_NAME }}
+          CLAUDE_API_KEY: ${{ secrets.CLAUDE_API_KEY }}
         run: python weather_bot.py
