@@ -16,22 +16,20 @@ def format_weather_message(weather_data):
     temp = current['temperature_2m']
     wind = current['wind_speed_10m']
     
-    message = f"""
-Good morning!
+    message = f"""Good morning!
 
 Today's weather:
 - Temperature: {temp}°F
 - Wind: {wind} mph
 - Time: {datetime.now().strftime('%A, %B %d, %Y')}
 
-Have a great day!
-"""
+Have a great day!"""
     return message
 
 # 3. SEND EMAIL
 def send_email(recipient_email, subject, body):
-sender_email = os.getenv('GMAIL_ADDRESS')
-sender_password = os.getenv('GMAIL_PASSWORD') # See Step 3 below
+    sender_email = os.getenv('GMAIL_ADDRESS')
+    sender_password = os.getenv('GMAIL_PASSWORD')
     
     msg = MIMEText(body)
     msg['Subject'] = subject
@@ -52,4 +50,4 @@ if __name__ == "__main__":
     
     weather = get_weather(latitude, longitude)
     message = format_weather_message(weather)
-    send_email("nanisandy2@gmail.com", "Your daily weather", message)
+    send_email(os.getenv('RECIPIENT_EMAIL'), "Your daily weather", message)
